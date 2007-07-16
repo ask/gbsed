@@ -1,0 +1,78 @@
+#!/usr/local/bin/perl
+#
+# Copyright (C) 2007 Ask Solem <ask@0x61736b.net>
+#
+# This file is part of gbsed
+#
+#    gbsed is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    gbsed is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+# $Source$
+# $Author$
+# $HeadURL$
+# $Revision$
+# $Date$
+use strict;
+use warnings;
+use English qw( -no_match_vars );
+use feature qw( :5.10 );
+
+sub trim(\$);
+
+my ($new, $orig) = @ARGV;
+if (!$new || !$orig) {
+    die "Usage: $0 <orig> <new>\n";
+}
+
+open my $nfh, '<', $new
+    or die "Couldn't open $new $OS_ERROR\n";
+
+my %seen;
+
+NEW:
+while (my $new_line = <$nfh>) {
+    next NEW if !trim $new_line;
+
+    my $new_line_regexp =  quotemeta $new_line;
+    while ($new_line_regexp =~ m/\s+/xms) {
+        $new_line_regexp =~ s/\s+/\\s+/xms;
+    }
+
+    open my $ofh, '<', $orig
+        or die "Couldn't open $orig: $OS_ERROR\n";
+
+    my $orig_line_no = 0;
+
+    ORIG:
+    while (my $orig_line = <$ofh>) {
+        $orig_line_no++;
+        next ORIG if !trim $orig_line;
+        
+        if ($orig_line =~ m/$new_line_regexp/xms) {
+            if (!$seen{$orig_line}++) {
+                say "$orig_line_no: $new_line";
+            }
+        }
+    }
+}
+
+sub trim(\$) {
+    my ($line_ref) = @_;
+    chomp ${ $line_ref };
+    ${ $line_ref } =~ s/^ \s+  //xms;
+    ${ $line_ref } =~ s/  \s+ $//xms;
+    return 0 if !${ $line_ref };
+    return 0 if  ${ $line_ref } =~ m/^\W+$/xms;
+    return 1;
+}

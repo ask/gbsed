@@ -1,0 +1,18 @@
+ChangeLog for libgbsed.
+
+2007-07-14 Ask Solem <ask@0x61736b.net>
+    * Now uses autoconf and automake.
+    * libgbsed now documented.
+    * bsr renamed to binary_search_replace
+    * binary_search_replace now uses one struct
+      as argument instead of dozen arguments.
+    * Should never exit anymore.
+
+2007-07-13 Ask Solem <ask@0x61736b.net>
+    * Now version 0.0.4
+    * libgbsed.c: Forgot to close files and flush buffers.
+    * libgbsed.c: Global variables removed.
+    * Documented wildcard matching and minmatch+maxmatch.
+
+2007-07-12 Ask Solem <ask@0x61736b.net>
+	* Initial version.
