@@ -1,5 +1,10 @@
 ChangeLog for libgbsed.
 
+2007-07-17 Ask Solem <ask@0x61736b.net>
+    * libgbsed.c: 
+      now the output file preserves the executable bits from 
+      the input file. (mode_t _gbsed_preserve_execbit(FILE *))
+
 2007-07-14 Ask Solem <ask@0x61736b.net>
     * Now uses autoconf and automake.
     * libgbsed now documented.

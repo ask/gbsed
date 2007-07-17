@@ -52,6 +52,7 @@
 #define GBSED_EOPEN_OUTFILE        0xa
 #define GBSED_ENOMEM               0xb
 #define GBSED_EMINMAX_BALANCE      0xc
+#define GBSED_ENOSTAT_FDES          0xd
 
 #define GBSED_WBALANCE             0x1
 
@@ -132,11 +133,16 @@ _gbsed_alloczero(size_t,  size_t);
 /*           Private functions       */
 
 #ifdef LIBGBSED_PRIVATE
-    char *
-    _gbsed_remove_0x_from_str(char *);
 
-    UCHAR *
-    _gbsed_hexstr2bin(register UCHAR *, int *);
+char *
+_gbsed_remove_0x_from_str(char *);
+
+UCHAR *
+_gbsed_hexstr2bin(register UCHAR *, int *);
+
+mode_t
+_gbsed_preserve_execbit(FILE *file);
+
 #else  /* not lIBGBSED_PRIVATE */
 #  define LIBGBSED_PRIVATE 0
 #endif /*     LIBGBSED_PRIVATE */

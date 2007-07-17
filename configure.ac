@@ -21,6 +21,7 @@ AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([gbsed],[1.0])
 AC_CANONICAL_HOST
+AC_CACHE_LOAD
 
 changequote(,)dnl
 case $VERSION in
@@ -32,10 +33,10 @@ changequote([, ])dnl
 AC_SUBST(DIST_ALPHA)
 
 AC_PROG_CC
-
+AC_PROG_GCC_TRADITIONAL
 AC_PROG_RANLIB
-
 AC_PROG_INSTALL
+AC_CACHE_SAVE
 
 # check for basename
 AC_MSG_CHECKING([for libgen.h])
@@ -56,8 +57,15 @@ if test $system_has_libgen_h = yes; then
     ])
 fi
 AC_MSG_RESULT($system_has_libgen_h)
+AC_CACHE_SAVE
 
+AC_SUBST(BUILD_TARGET)
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(LDFLAGS)
+AC_SUBST(LIBTOOL)
 
+AC_CACHE_SAVE
 AC_OUTPUT([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
 src/gbsed/Makefile man/Makefile])
     
