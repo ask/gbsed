@@ -1,3 +1,4 @@
+## Process this file with automake to produce Makefile.in
 #
 # Copyright (C) 2007 Ask Solem <ask@0x61736b.net>
 #

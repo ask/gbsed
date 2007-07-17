@@ -1,3 +1,4 @@
+## Process this file with autoconf to produce configure.in
 #
 # Copyright (C) 2007 Ask Solem <ask@0x61736b.net>
 #
@@ -16,11 +17,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([gbsed], [1.0], [Ask Solem ask@0x61736b.net], [gbsed])
+AC_INIT([gbsed], [0.6], [Ask Solem ask@0x61736b.net], [gbsed])
 AC_REVISION($Revision$)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE([gbsed],[1.0])
+AM_INIT_AUTOMAKE([gbsed],[0.6])
+AC_CONFIG_SRCDIR(src/libgbsed/libgbsed.c)
+AC_CONFIG_MACRO_DIR(m4)
 AC_CANONICAL_HOST
 AC_CACHE_LOAD
 
@@ -60,14 +63,16 @@ fi
 AC_MSG_RESULT($system_has_libgen_h)
 AC_CACHE_SAVE
 
-AC_SUBST(BUILD_TARGET)
-AC_SUBST(CFLAGS)
-AC_SUBST(CPPFLAGS)
-AC_SUBST(LDFLAGS)
-AC_SUBST(LIBTOOL)
+AH_TEMPLATE([PERL_MALLOC],
+    [Define if you are using with perl/XS and want to use the perl memory
+     allocation functions. ])
+
+dnl AC_SUBST(BUILD_TARGET)
+dnl AC_SUBST(CFLAGS)
+dnl AC_SUBST(CPPFLAGS)
+dnl AC_SUBST(LDFLAGS)
+dnl AC_SUBST(LIBTOOL)
 
 AC_CACHE_SAVE
 AC_OUTPUT([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
 src/gbsed/Makefile man/Makefile])
-    
-
