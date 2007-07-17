@@ -107,27 +107,24 @@ void *
 _gbsed_alloczero(size_t,  size_t);
 
 
-#define _gbsed_alloc(pointer, add, type)    \
-    (type *)_gbsed_alloczero(add, sizeof(type))
-
-#define _gbsed_realloc(pointer, add, type)  \
-    (type *)realloc(pointer, add*sizeof(type))
-
-#define _gbsed_safefree(pointer)            \
-    free(pointer)
 
 
 #ifdef PERL_MALLOC
 #  include <EXTERN.h>
 #  include <perl.h>
-#  undef  _gbsed_alloc(pointer, add, type)
 #  define _gbsed_alloc(pointer, add, type)   \
     (type *)Newxz(pointer, add, type)
-#  undef  _gbsed_realloc(pointer, add, type) \
+#  define  _gbsed_realloc(pointer, add, type) \
     (type *)Renew(pointer, add, type)
-#  undef  _gbsed_safefree(pointer)
 #  define _gbsed_safefree(pointer)           \
     Safefree(pointer)
+#else /* not PERL_MALLOC */
+#define _gbsed_alloc(pointer, add, type)    \
+    (type *)_gbsed_alloczero(add, sizeof(type))
+#define _gbsed_realloc(pointer, add, type)  \
+    (type *)realloc(pointer, add*sizeof(type))
+#define _gbsed_safefree(pointer)            \
+    free(pointer)
 #endif /* PERL_MALLOC */
 
 /*           Private functions       */

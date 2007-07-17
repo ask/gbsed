@@ -665,23 +665,23 @@ m4trace:configure.ac:38: -1- AC_PROG_INSTALL
 m4trace:configure.ac:38: -1- AC_SUBST([INSTALL_PROGRAM])
 m4trace:configure.ac:38: -1- AC_SUBST([INSTALL_SCRIPT])
 m4trace:configure.ac:38: -1- AC_SUBST([INSTALL_DATA])
-m4trace:configure.ac:55: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
+m4trace:configure.ac:53: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2180: AC_TRY_COMPILE is expanded from...
 autoconf/general.m4:1799: AC_CACHE_VAL is expanded from...
-configure.ac:55: the top level])
-m4trace:configure.ac:59: -1- AC_DEFINE_TRACE_LITERAL([HAVE_LIBGEN_H])
-m4trace:configure.ac:59: -1- AH_OUTPUT([HAVE_LIBGEN_H], [/* Define if the system has the xopen libgen.h header. */
+configure.ac:53: the top level])
+m4trace:configure.ac:57: -1- AC_DEFINE_TRACE_LITERAL([HAVE_LIBGEN_H])
+m4trace:configure.ac:57: -1- AH_OUTPUT([HAVE_LIBGEN_H], [/* Define if the system has the xopen libgen.h header. */
 #undef HAVE_LIBGEN_H])
-m4trace:configure.ac:64: -1- AC_SUBST([BUILD_TARGET])
-m4trace:configure.ac:65: -1- AC_SUBST([CFLAGS])
-m4trace:configure.ac:66: -1- AC_SUBST([CPPFLAGS])
-m4trace:configure.ac:67: -1- AC_SUBST([LDFLAGS])
-m4trace:configure.ac:68: -1- AC_SUBST([LIBTOOL])
-m4trace:configure.ac:72: -1- AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
+m4trace:configure.ac:62: -1- AC_SUBST([BUILD_TARGET])
+m4trace:configure.ac:63: -1- AC_SUBST([CFLAGS])
+m4trace:configure.ac:64: -1- AC_SUBST([CPPFLAGS])
+m4trace:configure.ac:65: -1- AC_SUBST([LDFLAGS])
+m4trace:configure.ac:66: -1- AC_SUBST([LIBTOOL])
+m4trace:configure.ac:70: -1- AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
 src/gbsed/Makefile man/Makefile])
-m4trace:configure.ac:72: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:70: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:72: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:72: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:72: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:72: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:70: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:70: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:70: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:70: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

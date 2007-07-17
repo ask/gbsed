@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([gbsed], [1.0], [Ask Solem ask@0x61736b.net], [gbsed])
+AC_REVISION($Revision$)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([gbsed],[1.0])

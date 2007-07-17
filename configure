@@ -3413,8 +3413,6 @@ if diff $cache_file confcache >/dev/null 2>&1; then :; else
 fi
 rm -f confcache
 
-AC_DEFAULT_INCLUDES
-
 # check for basename
 echo "$as_me:$LINENO: checking for libgen.h" >&5
 echo $ECHO_N "checking for libgen.h... $ECHO_C" >&6
