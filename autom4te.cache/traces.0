@@ -665,21 +665,58 @@ m4trace:configure.ac:42: -1- AC_PROG_INSTALL
 m4trace:configure.ac:42: -1- AC_SUBST([INSTALL_PROGRAM])
 m4trace:configure.ac:42: -1- AC_SUBST([INSTALL_SCRIPT])
 m4trace:configure.ac:42: -1- AC_SUBST([INSTALL_DATA])
-m4trace:configure.ac:57: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
-You should run autoupdate.], [autoconf/general.m4:2180: AC_TRY_COMPILE is expanded from...
-autoconf/general.m4:1799: AC_CACHE_VAL is expanded from...
-configure.ac:57: the top level])
-m4trace:configure.ac:61: -1- AC_DEFINE_TRACE_LITERAL([HAVE_LIBGEN_H])
-m4trace:configure.ac:61: -1- AH_OUTPUT([HAVE_LIBGEN_H], [/* Define if the system has the xopen libgen.h header. */
+m4trace:configure.ac:45: -1- AC_HEADER_STDC
+m4trace:configure.ac:45: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
+m4trace:configure.ac:45: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS])
+m4trace:configure.ac:46: -1- AC_CHECK_HEADERS([libgen.h stdlib.h unistd.h sys/stat.h sys/types.h])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_LIBGEN_H], [/* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H])
-m4trace:configure.ac:68: -1- AH_OUTPUT([PERL_MALLOC], [/* Define if you are using with perl/XS and want to use the perl memory
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STDLIB_H], [/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_UNISTD_H], [/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_SYS_STAT_H], [/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_SYS_TYPES_H], [/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H])
+m4trace:configure.ac:46: -1- AC_CHECK_HEADERS([sys/types.h sys/stat.h stdlib.h string.h memory.h strings.h \
+		  inttypes.h stdint.h unistd.h], [], [], [$ac_includes_default])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_SYS_TYPES_H], [/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_SYS_STAT_H], [/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STDLIB_H], [/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STRING_H], [/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_MEMORY_H], [/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STRINGS_H], [/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_INTTYPES_H], [/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STDINT_H], [/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_UNISTD_H], [/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H])
+m4trace:configure.ac:144: -1- AH_OUTPUT([PERL_MALLOC], [/* Define if you are using with perl/XS and want to use the perl memory
    allocation functions. */
 #undef PERL_MALLOC])
-m4trace:configure.ac:78: -1- AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
+m4trace:configure.ac:151: -1- AC_SUBST([LIBRARY])
+m4trace:configure.ac:160: -1- AC_TYPE_MODE_T
+m4trace:configure.ac:160: -1- AC_DEFINE_TRACE_LITERAL([mode_t])
+m4trace:configure.ac:160: -1- AH_OUTPUT([mode_t], [/* Define to `int\' if <sys/types.h> does not define. */
+#undef mode_t])
+m4trace:configure.ac:161: -1- AC_TYPE_SIZE_T
+m4trace:configure.ac:161: -1- AC_DEFINE_TRACE_LITERAL([size_t])
+m4trace:configure.ac:161: -1- AH_OUTPUT([size_t], [/* Define to `unsigned\' if <sys/types.h> does not define. */
+#undef size_t])
+m4trace:configure.ac:198: -1- AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile
 src/gbsed/Makefile man/Makefile])
-m4trace:configure.ac:78: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:198: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:78: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:78: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:78: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:78: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:198: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:198: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:198: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:198: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

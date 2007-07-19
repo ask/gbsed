@@ -62,18 +62,18 @@ void print_help(char *);
 /* Our arguments...  */
 static struct option longopts[] =
 {
-    { "search",      required_argument, NULL, 's' },
+    { "search",      required_argument, NULL, 's' }, 
     { "replace",     required_argument, NULL, 'r' },
-    { "searchstr",   required_argument, NULL, 'S' },
-    { "replacestr",  required_argument, NULL, 'R' },
-    { "min",         required_argument, NULL, 'm' },
-    { "max",         required_argument, NULL, 'M' },
-    { "dump",        required_argument, NULL, 'D' },
-    { "help",        no_argument,       NULL, 'h' },
-    { "version",     no_argument,       NULL, 'v' },
-    { "silent",      no_argument,       NULL, 'x' },
-    { "very-silent", no_argument,       NULL, 'X' },
-};
+    { "searchstr",   required_argument, NULL, 'S' }, 
+    { "replacestr",  required_argument, NULL, 'R' }, 
+    { "min",         required_argument, NULL, 'm' }, 
+    { "max",         required_argument, NULL, 'M' }, 
+    { "dump",        required_argument, NULL, 'D' }, 
+    { "help",        no_argument,       NULL, 'h' }, 
+    { "version",     no_argument,       NULL, 'v' }, 
+    { "silent",      no_argument,       NULL, 'x' }, 
+    { "very-silent", no_argument,       NULL, 'X' }, 
+}; 
 
 
 /* Short version of the arguments */

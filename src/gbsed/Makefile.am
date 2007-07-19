@@ -17,8 +17,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CFLAGS    = -Wall -Werror -pedantic -ansi 
-#                -arch ppc -arch i386
+AM_CFLAGS    = -Wall -pedantic -ansi 
 
 bin_PROGRAMS = gbsed
 INCLUDES     = -I$(top_srcdir)/lib -I../libgbsed/

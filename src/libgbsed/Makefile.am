@@ -17,19 +17,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CFLAGS            = -Wall -Werror -pedantic -ansi -fno-common  \
-                       -no-cpp-precomp -fno-strict-aliasing -fPIC -O3   
-#                       -arch ppc -arch i386 #-bundle -undefined dynamic_lookup
-
-lib_LIBRARIES        = libgbsed.a
-
+AM_CFLAGS            = -Wall -pedantic -ansi -fno-common
+AM_CFLAGS           += -no-cpp-precomp -fno-strict-aliasing -fPIC -O3   
 INCLUDES             = -I$(top_srcdir)/lib
 DEFS                 = @DEFS@ -DVERSION=\"$(VERSION)\" -DLIBGBSED_PRIVATE=1
 
-
-
+lib_LIBRARIES        = libgbsed.a
 include_HEADERS      = libgbsed.h
-
 BUILT_SOURCES        = libgbsed.c
 libgbsed_a_SOURCES   = libgbsed.c 
 MAINTAINERCLEANFILES = $(BUILD_SOURCES)

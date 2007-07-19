@@ -111,6 +111,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
+LIBRARY = @LIBRARY@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
@@ -165,7 +166,7 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-AM_CFLAGS = -Wall -Werror -pedantic -ansi 
+AM_CFLAGS = -Wall -pedantic -ansi 
 INCLUDES = -I$(top_srcdir)/lib -I../libgbsed/
 LDADD = ../libgbsed/libgbsed.a
 all: all-am

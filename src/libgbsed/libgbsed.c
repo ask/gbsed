@@ -28,7 +28,7 @@
 */
 
 #ifdef HAVE_CONFIG_H
-# include <config.h>
+#   include <config.h>
 #endif /* HAVE_CONFIG_H */
 
 #include <stdlib.h>
@@ -40,13 +40,20 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef HAVE_MALLOC_H
+#   include <malloc.h>
+#endif /* HAVE_MALLOC_H */
+
 #include "libgbsed.h"
 
 #ifndef VERSION
-#  error "Missing -DVERSION!"
+#   error "Missing -DVERSION!"
 #endif /* VERSION */
 
-#define GBSED_MAX_WARNINGS 128
+#define GBSED_MAX_WARNINGS            128
+#define GBSED_CONTEXT_SIZE            5
+#define GBSED_BYTE_SIZE               2
+#define GBSED_CONTEXT_LAST_ELEMENT    GBSED_CONTEXT_SIZE - 1
 #define VRWMODE     (S_IRUSR|S_IWUSR)
 #define UN_FILEMODE ((VRWMODE)|(VRWMODE>>3)|(VRWMODE>>6))
 
@@ -63,19 +70,22 @@ char gbsed_file_error[1024+1];
 /* from errno.h */
 extern int  errno;
 
-#define GBSED_BYTE_SIZE               2
-#define GBSED_CONTEXT_SIZE            5
-#define GBSED_CONTEXT_LAST_ELEMENT    GBSED_CONTEXT_SIZE - 1
+/*
+libanswer.dylib: answer.o         $(LD) -dynamiclib  -install_name
+libanswer.dylib \ 
+        -o libanswer.dylib answer.o 
+*/
+
 
 const char*
-gbsed_version(void)
+gbsed_version (void)
 { 
     const char *version_string = VERSION;
     return version_string;
 }
 
 const char*
-gbsed_errtostr(int gbsed_errno_val)
+gbsed_errtostr (int gbsed_errno_val)
 {
     char *retval;
 
@@ -129,7 +139,7 @@ gbsed_errtostr(int gbsed_errno_val)
 }
 
 char*
-gbsed_warntostr(int gbsed_warno_val)
+gbsed_warntostr (int gbsed_warno_val)
 {
     char *retval;
 
@@ -166,7 +176,7 @@ gbsed_warntostr(int gbsed_warno_val)
 
 #define gbsed_reset_warnings() (gbsed_warn_index = 0)
 
-void * _gbsed_alloczero(size_t count,  size_t size)
+void * _gbsed_alloczero (size_t count,  size_t size)
 {
     void *new_pointer;
     new_pointer = calloc(count, size);
@@ -177,7 +187,7 @@ void * _gbsed_alloczero(size_t count,  size_t size)
 
 /* see libgbsed.h for struct bsed_arguments */
 int
-gbsed_binary_search_replace(struct gbsed_arguments *arg)
+gbsed_binary_search_replace (struct gbsed_arguments *arg)
 {
     fGBSEDargs *farg;
     FILE       *infile          = NULL;
@@ -237,7 +247,6 @@ gbsed_binary_search_replace(struct gbsed_arguments *arg)
         
     }
 
-    
     farg            = _gbsed_alloc(farg, 1, fGBSEDargs);
     if (farg == NULL) {
         gbsed_errno = GBSED_ENOMEM;
@@ -293,7 +302,7 @@ gbsed_binary_search_replace(struct gbsed_arguments *arg)
     } while(0);
 
 int
-gbsed_fbinary_search_replace(struct fgbsed_arguments *arg)
+gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
 {
     char  *searchstr     = arg->search;
     char  *replacestr    = arg->replace;
@@ -487,7 +496,7 @@ gbsed_fbinary_search_replace(struct fgbsed_arguments *arg)
 }
 
 char *
-gbsed_string2hexstring(char *orig)
+gbsed_string2hexstring (char *orig)
 {
     char   *hexstr;
     char   *strp;
@@ -510,39 +519,34 @@ gbsed_string2hexstring(char *orig)
     return hexstr;
 }
 
+char *
+_gbsed_remove_0x_from_str (char *s)
+{
+    return _gbsed_delete_start_of_str(s, "0x");
+}
 
 char *
-_gbsed_remove_0x_from_str(char *str)
+_gbsed_delete_start_of_str (char *s, const char *what)
 {
-    char   strp;
-    char  *p;
-    int   in_start_of_string = 1;
-    char  *out;
-    char  *outp;
+    int    i        = 0;
+    int    matches  = 1;
+    size_t wlen     = strlen(what);
+    char  *dest     = strdup(s);
+    if (dest == NULL) return NULL;
 
-    out     = _gbsed_alloc(out, strlen(str)+1, char);
-    if (out == NULL) {
-        gbsed_errno = GBSED_ENOMEM;
-        return NULL;
+    for (i = 0; i < wlen; i++) { 
+        if (s[i] != what[i])
+            matches--;
     }
+    if (matches == 1) {
+        size_t  src_len = (strlen(s)+1);
+        char   *src_ptr = s;
 
-    p    = str;
-    outp = out;
-    strp = *str++;
-    for (; strp != '\0'; strp = *str++, *p++) {
-        if (in_start_of_string-- && strp == '0') {
-            char pp = *p++;
-            pp = *p++;
-            if (pp == 'x' || pp == 'X') {
-                strp = *str++;
-                continue;
-            }
-        }
-        *outp++ = strp;
+        dest[0]            = '\0';
+        strncat(dest, src_ptr + wlen, src_len + 1);
+        dest[src_len-wlen] = '\0';
     }
-    *outp++ = '\0';
-
-    return out;
+    return dest;
 }
 
 #define _gbsed_isnum(c)    (((c) >= '0') && ((c) <= '9'))
@@ -551,7 +555,7 @@ _gbsed_remove_0x_from_str(char *str)
 #define _gbsed_hexval(c)   (_gbsed_isnum(c) ? ((c) & 0xf) : (((c) & 0xf) + 9))
 #define _gbsed_iswild(c)   ((c) == '?')
 UCHAR *
-_gbsed_hexstr2bin(register UCHAR *in, int *len_buf)
+_gbsed_hexstr2bin (register UCHAR *in, int *len_buf)
 {
     register UCHAR *outp;
     register UCHAR  inp;
@@ -623,7 +627,7 @@ _gbsed_hexstr2bin(register UCHAR *in, int *len_buf)
 }
 
 mode_t
-_gbsed_preserve_execbit(FILE *file)
+_gbsed_preserve_execbit (FILE *file)
 {
     struct stat *filestat;
     mode_t       cur_umask      = 00;

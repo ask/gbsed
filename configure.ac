@@ -42,26 +42,102 @@ AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_CACHE_SAVE
 
-# check for basename
-AC_MSG_CHECKING([for libgen.h])
-AC_CACHE_VAL(system_has_libgen_h,
-[AC_TRY_COMPILE([
-#include <libgen.h>],
-[const char *mydir;
-       char *bname;
- mydir = "hello/dir";
- bname = basename(bname);
-],
-system_has_libgen_h=yes,
-system_has_libgen_h=no,
-)])
-if test $system_has_libgen_h = yes; then
-    AC_DEFINE(HAVE_LIBGEN_H, 1, [
-        Define if the system has the xopen libgen.h header.
-    ])
+AC_HEADER_STDC
+AC_CHECK_HEADERS(libgen.h stdlib.h unistd.h sys/stat.h sys/types.h)
+
+# OS Specific
+
+# # ## MAC OS X
+can_it_be_osx='test -x /usr/bin/sw_vers'
+get_osx_revision='sw_vers -productVersion
+                | awk "{split(\$1,v,\".\");print v[2]}"
+';
+AC_MSG_CHECKING([for Mac OS X])
+case "$host" in
+    i*-apple-darwin*)
+        ret=`$can_it_be_osx`
+        if test $? -eq 0; then
+            this_is_mac_os_x=yes
+            can_universal_binaries=yes
+            osx_revision=`$get_osx_revision`;
+         fi
+    ;;
+    powerpc-apple-darwin*)
+        ret=`$can_it_be_osx`
+        if test $? -eq 0; then
+            this_is_mac_os_x=yes
+            osx_revision=`$get_osx_revision`;
+            if test $osx_revision -ge 4; then
+                can_universal_binaries=yes
+            fi
+        fi
+    ;;
+    *)
+        this_is_mac_os_x=no
+    ;;
+esac
+AC_MSG_RESULT($this_is_mac_os_x)
+
+AC_MSG_CHECKING(for Mac OS X version)
+if test "$this_is_mac_os_x" == "yes"; then
+    osx_version=`sw_vers -productVersion`
+    AC_MSG_RESULT($osx_version)
+else
+    AC_MSG_RESULT("no")
 fi
-AC_MSG_RESULT($system_has_libgen_h)
-AC_CACHE_SAVE
+
+AC_MSG_CHECKING([for Mac OS X universal binaries support])
+AC_MSG_RESULT($can_universal_binaries)
+
+AC_MSG_CHECKING([for Mac OS X deployment target])
+osx_deployment_target=no
+if test "$this_is_mac_os_x" == "yes"; then
+
+    osxdt=$MACOSX_DEPLOYMENT_TARGET
+
+    if test ! -z "$osxdt"; then
+        osx_deployment_target=$osxdt
+        osx_dt_version=`echo "$osxdt" | cut -d. -f2`;
+
+        # universal binaries was first supported in 10.4
+        if test $osx_dt_version -lt 4; then
+            osx_deployment_target="$osxdt (will not build universal binaries)."
+            can_universal_binaries=no
+        fi
+    fi
+fi
+AC_MSG_RESULT($osx_deployment_target)
+
+if test "$this_is_mac_os_x" == "yes"; then
+    if test "as_universal_binaries" == "1"; then
+        CFLAGS="$CFLAGS -arch ppc -arch i386"
+    fi
+        dnl LDEXT="dylib"
+        dnl LDFLAGS="$LDFLAGS -dynamiclib"
+        dnl AM_CONDITIONAL(LDYLIB, true)
+fi
+
+AC_MSG_CHECKING(for hdiutil)
+have_hdiutil=no
+if test "$this_is_mac_os_x" == "yes"; then
+    have_hdiutil=`which hdiutil`
+fi
+AC_MSG_RESULT($have_hdiutil)
+
+AC_MSG_CHECKING(for packagemaker)
+have_packagemaker=no
+if test "$this_is_mac_os_x" == "yes"; then
+   have_packagemaker=`which packagemaker`
+fi
+AC_MSG_RESULT($have_packagemaker) 
+
+# #### /* MAC OS X */
+
+AC_ARG_WITH(universal-binary,
+[  --with-universal-binary Build (MacOSX|Darwin) universal binaries],,)
+
+AC_ARG_WITH(dyld,
+[  --with-dyld             Use (MacOSX|Darwin|OpenStep|Rhapsody) dynamic linker. ],,)
 
 AH_TEMPLATE([PERL_MALLOC],
     [Define if you are using with perl/XS and want to use the perl memory
@@ -72,6 +148,50 @@ dnl AC_SUBST(CFLAGS)
 dnl AC_SUBST(CPPFLAGS)
 dnl AC_SUBST(LDFLAGS)
 dnl AC_SUBST(LIBTOOL)
+AC_SUBST(LIBRARY)
+AC_MSG_CHECKING(LIBRARY)
+if test -z "$LIBRARY"
+then
+    LIBRARY='libbsed$(VERSION).a'
+fi
+AC_MSG_RESULT($LIBRARY)
+
+dnl Check some types.
+AC_TYPE_MODE_T
+AC_TYPE_SIZE_T
+
+AC_MSG_CHECKING(for LIBGBSED_AUTHOR)
+has_this=no
+if test "$LIBGBSED_AUTHOR" = 1; then
+    CFLAGS="$CFLAGS -Werror"
+    has_this=yes
+fi
+AC_MSG_RESULT($has_this)
+
+dnl Option --with-dyld
+AC_MSG_CHECKING(for --with-dyld)
+if test "$with_dyld"; then
+    AC_MSG_RESULT(yes)
+    dnl AC_DEFINE(WITH_DYLD)
+    ns_dyld='set'
+else
+    AC_MSG_RESULT(no)
+fi
+
+dnl Option --with-universal-binary
+AC_MSG_CHECKING(for --with-universal-binary)
+if test "$with_universal_binary"; then
+    AC_MSG_RESULT(yes)
+    dnl AC_DEFINE(WITH_UB)
+    ns_ub='set'
+else
+    AC_MSG_RESULT(no)
+fi
+ 
+
+
+
+
 
 AC_CACHE_SAVE
 AC_OUTPUT([Makefile m4/Makefile src/Makefile src/libgbsed/Makefile

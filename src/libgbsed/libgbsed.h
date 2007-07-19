@@ -32,7 +32,32 @@
 #endif /* HAVE_CONFIG_H */
 
 #ifndef _LIBGBSED_H_
-#define _LIBGBSED_H_
+#define _LIBGBSED_H_        1
+
+#undef __BEGIN_DECLS
+#undef __END_DECLS
+#ifdef _cplusplus
+#   define __BEGIN_DECLS    extern "C" {
+#   define __END_DECLS      }
+#else  /* not _cplusplus */
+#   define __BEGIN_DECLS /* empty */
+#   define __END_DECLS   /* empty */
+#endif /* _cplusplus */
+
+/* __P is a macro used to wrap function prototypes, so that compilers
+    that don't understand ANSI C prototypes still work, and ANSI C
+    compilers can issue warnigns about type mismatches. 
+*/
+#undef __P
+#if defined (__STDC__)   || defined (_AIX) \
+    || (defined (__mips) && defined (_SYSTYPE_SVR4)) \
+    || defined(WIN32)    || defined (__cplusplus)
+#       define __P(protos) protos
+# else /* not __STDC__ */
+#   define __P(protos) ()
+# endif
+
+
 
 
 /*           Constants             */
@@ -84,29 +109,34 @@ typedef struct fgbsed_arguments fGBSEDargs;
 
 /*           Public functions.      */
 
+__BEGIN_DECLS
+
+extern int  gbsed_errno;
+extern int  gbsed_warnings[];
+extern int  gbsed_warn_index;
+
 const char*
 gbsed_version(void);
 
 int
-gbsed_binary_search_replace(struct gbsed_arguments *);
+gbsed_binary_search_replace __P((struct gbsed_arguments *));
 
 int
-gbsed_fbinary_search_replace(struct fgbsed_arguments *);
+gbsed_fbinary_search_replace __P((struct fgbsed_arguments *));
 
 char *
-gbsed_string2hexstring(char *orig);
+gbsed_string2hexstring       __P((char *orig));
 
 const char*
-gbsed_errtostr(int);
+gbsed_errtostr               __P((int));
 
 char*
-gbsed_warntostr(int);
-
+gbsed_warntostr              __P((int));
 
 void *
-_gbsed_alloczero(size_t,  size_t);
+_gbsed_alloczero             __P((size_t,  size_t));
 
-
+__END_DECLS
 
 
 #ifdef PERL_MALLOC
@@ -120,9 +150,9 @@ _gbsed_alloczero(size_t,  size_t);
     Safefree(pointer)
 #else /* not PERL_MALLOC */
 #define _gbsed_alloc(pointer, add, type)    \
-    (type *)_gbsed_alloczero(add, sizeof(type))
+    _gbsed_alloczero(add, sizeof(type))
 #define _gbsed_realloc(pointer, add, type)  \
-    (type *)realloc(pointer, add*sizeof(type))
+    realloc(pointer, add*sizeof(type))
 #define _gbsed_safefree(pointer)            \
     free(pointer)
 #endif /* PERL_MALLOC */
@@ -131,20 +161,27 @@ _gbsed_alloczero(size_t,  size_t);
 
 #ifdef LIBGBSED_PRIVATE
 
+__BEGIN_DECLS
+
 char *
-_gbsed_remove_0x_from_str(char *);
+_gbsed_delete_start_of_str (char *s, const char *what);
+
+char *
+_gbsed_remove_0x_from_str __P((char *));
 
 UCHAR *
-_gbsed_hexstr2bin(register UCHAR *, int *);
+_gbsed_hexstr2bin         __P((register UCHAR *, int *));
 
 mode_t
-_gbsed_preserve_execbit(FILE *file);
+_gbsed_preserve_execbit   __P((FILE *file));
+
+__END_DECLS
 
 #else  /* not lIBGBSED_PRIVATE */
 #  define LIBGBSED_PRIVATE 0
 #endif /*     LIBGBSED_PRIVATE */
 
-#endif /* _LIBGBSED_H_ */
+#endif /* !_LIBGBSED_H_ */
 
 
 /*
