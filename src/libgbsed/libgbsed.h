@@ -65,23 +65,21 @@
 #define GBSED_ERROR                 -1
 #define GBSED_NO_MATCH             0x0
 
-#define GBSED_ESEARCH_TOO_LONG     0x1
-#define GBSED_ENULL_SEARCH         0x2
-#define GBSED_EREPLACE_TOO_LONG    0x3
-#define GBSED_ENULL_REPLACE        0x4
-#define GBSED_EMISSING_INPUT       0x5
-#define GBSED_EMISSING_OUTPUT      0x6
-#define GBSED_EINVALID_CHAR        0x7 
-#define GBSED_ENIBBLE_NOT_BYTE     0x8 
-#define GBSED_EOPEN_INFILE         0x9
-#define GBSED_EOPEN_OUTFILE        0xa
-#define GBSED_ENOMEM               0xb
-#define GBSED_EMINMAX_BALANCE      0xc
-#define GBSED_ENOSTAT_FDES          0xd
+#define GBSED_ENULL_SEARCH         0x1
+#define GBSED_ENULL_REPLACE        0x2
+#define GBSED_EMISSING_INPUT       0x3
+#define GBSED_EMISSING_OUTPUT      0x4
+#define GBSED_EINVALID_CHAR        0x5 
+#define GBSED_ENIBBLE_NOT_BYTE     0x6 
+#define GBSED_EOPEN_INFILE         0x7
+#define GBSED_EOPEN_OUTFILE        0x8
+#define GBSED_ENOMEM               0x9
+#define GBSED_EMINMAX_BALANCE      0xa
+#define GBSED_ENOSTAT_FDES         0xb
 
 #define GBSED_WBALANCE             0x1
 
-#define GBSED_MAXMATCH_NO_LIMIT     -1
+#define GBSED_MMAX_NO_LIMIT         -1
 
 /*           Types                 */
 
@@ -116,10 +114,10 @@ extern int  gbsed_warnings[];
 extern int  gbsed_warn_index;
 
 const char*
-gbsed_version(void);
+gbsed_version                __P((void));
 
 int
-gbsed_binary_search_replace __P((struct gbsed_arguments *));
+gbsed_binary_search_replace  __P((struct gbsed_arguments *));
 
 int
 gbsed_fbinary_search_replace __P((struct fgbsed_arguments *));
@@ -163,14 +161,8 @@ __END_DECLS
 
 __BEGIN_DECLS
 
-char *
-_gbsed_delete_start_of_str (char *s, const char *what);
-
-char *
-_gbsed_remove_0x_from_str __P((char *));
-
 UCHAR *
-_gbsed_hexstr2bin         __P((register UCHAR *, int *));
+_gbsed_hexstr2bin         __P((char *, size_t *));
 
 mode_t
 _gbsed_preserve_execbit   __P((FILE *file));

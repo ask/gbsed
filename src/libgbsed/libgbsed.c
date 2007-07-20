@@ -33,12 +33,16 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include <assert.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <math.h>
+#include <ctype.h>
 
 #ifdef HAVE_MALLOC_H
 #   include <malloc.h>
@@ -51,9 +55,7 @@
 #endif /* VERSION */
 
 #define GBSED_MAX_WARNINGS            128
-#define GBSED_CONTEXT_SIZE            5
 #define GBSED_BYTE_SIZE               2
-#define GBSED_CONTEXT_LAST_ELEMENT    GBSED_CONTEXT_SIZE - 1
 #define VRWMODE     (S_IRUSR|S_IWUSR)
 #define UN_FILEMODE ((VRWMODE)|(VRWMODE>>3)|(VRWMODE>>6))
 
@@ -70,13 +72,7 @@ char gbsed_file_error[1024+1];
 /* from errno.h */
 extern int  errno;
 
-/*
-libanswer.dylib: answer.o         $(LD) -dynamiclib  -install_name
-libanswer.dylib \ 
-        -o libanswer.dylib answer.o 
-*/
-
-
+/* Return the current libgbsed version */
 const char*
 gbsed_version (void)
 { 
@@ -84,20 +80,15 @@ gbsed_version (void)
     return version_string;
 }
 
+/* Return a error description for a error code in gbsed_errno */
 const char*
 gbsed_errtostr (int gbsed_errno_val)
 {
     char *retval;
 
     switch (gbsed_errno_val) {
-        case GBSED_ESEARCH_TOO_LONG:
-            retval = "Search string too long.";
-            break;
         case GBSED_ENULL_SEARCH:
             retval = "Missing search string.";
-            break;
-        case GBSED_EREPLACE_TOO_LONG:
-            retval = "Replace string too long.";
             break;
         case GBSED_ENULL_REPLACE:
             retval = "Missing replace string.";
@@ -138,6 +129,7 @@ gbsed_errtostr (int gbsed_errno_val)
     return retval;
 }
 
+/* Return a description for a warning code in gbsed_warnings[]. */
 char*
 gbsed_warntostr (int gbsed_warno_val)
 {
@@ -149,10 +141,6 @@ gbsed_warntostr (int gbsed_warno_val)
             retval = "Search and replace strings is not of the same length.";
             break;
     
-        case 2:
-            retval = "Testing warnings.";
-            break;
-        
         default:
             retval = NULL;
             break;
@@ -236,6 +224,7 @@ gbsed_binary_search_replace (struct gbsed_arguments *arg)
                 gbsed_errno = GBSED_EOPEN_OUTFILE;
                 return GBSED_ERROR;
             }
+            /* setvbuf(outfile, 0, _IONBF, BUFSIZ); */
         }
 
         /* preserve the exec bits from input file. */
@@ -243,11 +232,9 @@ gbsed_binary_search_replace (struct gbsed_arguments *arg)
             fchmod(fileno(outfile), preserve_exec);
         else 
             return GBSED_ERROR;
-         
-        
     }
 
-    farg            = _gbsed_alloc(farg, 1, fGBSEDargs);
+    farg      = _gbsed_alloc(farg, 1, fGBSEDargs);
     if (farg == NULL) {
         gbsed_errno = GBSED_ENOMEM;
         return GBSED_ERROR;
@@ -262,43 +249,32 @@ gbsed_binary_search_replace (struct gbsed_arguments *arg)
     matches         = gbsed_fbinary_search_replace(farg);
 
     fclose(infile);
-    if (outfile != NULL) {
+    if (outfile != NULL)
         fclose(outfile);
-    }
     free(farg);
 
     return (matches);
 }
 
+/* Poor mans garbage collection :-) */
 
-#define _gbsed_free()                                               \
-    do                                                              \
-    {                                                               \
-        if (search_buf_malloced)    _gbsed_safefree(search_buf);    \
-        if (replace_buf_malloced)   _gbsed_safefree(replace_buf);   \
-        if (stack_malloced)         _gbsed_safefree(stack);         \
-        if (searchtmp_malloced)     _gbsed_safefree(searchtmp);     \
-        if (replacetmp_malloced)    _gbsed_safefree(replacetmp);    \
-    } while(0);
+typedef struct gbsed_garbage_collection {
+        int search;
+        int replace;
+        int to_be_written;
+} gbsedGC;
 
-#define _gbsed_getc()                                       \
-    ((top_of_stack == 0) ? getc(infile)                     \
-                         : stack[--top_of_stack])
+#define _gbsed_gc_init()                          \
+        COLLECT.search        = 0;                \
+        COLLECT.replace       = 0;                \
+        COLLECT.to_be_written = 0;                \
+        
 
-#define _gbsed_putc(curbyte)                        \
-    do {                                            \
-        register unsigned char *p;                  \
-                                                    \
-        p = &left_context[0];                       \
-        while(p < &left_context[GBSED_CONTEXT_SIZE-1]) {  \
-            *p = *(p + 1);                          \
-            p++;                                    \
-        };                                          \
-        *p = curbyte;                               \
-        if (ltlen < GBSED_CONTEXT_SIZE)                   \
-            ltlen++;                                \
-        if (outfile != NULL)                        \
-            putc(curbyte,outfile);                  \
+#define _gbsed_gc_collect()                                         \
+    do {                                                            \
+        if (COLLECT.search)         _gbsed_safefree(search);        \
+        if (COLLECT.replace)        _gbsed_safefree(replace);       \
+        if (COLLECT.to_be_written)  _gbsed_safefree(to_be_written); \
     } while(0);
 
 int
@@ -313,76 +289,44 @@ gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
 
     UCHAR *search        = NULL;
     UCHAR *replace       = NULL;
-    int    ltlen         = 0;
+    UCHAR *to_be_written = NULL;
 
-    /* saved byte stack */
-    int   *stack           = NULL;
-    int    stack_malloced  = 0;
-    int    top_of_stack    = 0;
-    int    match           = 0;
+    int    bytematch     = 0;
+    int    matches       = 0;
+    int    i             = 0;
 
-    char  *searchtmp           = NULL;
-    char  *replacetmp          = NULL;
-    int    searchtmp_malloced  = 0;
-    int    replacetmp_malloced = 0;
-
-    UCHAR  *search_buf           = NULL;
-    UCHAR  *replace_buf          = NULL;
-    int     search_buf_malloced  = 0;
-    int     replace_buf_malloced = 0;
-
-    /* current byte in file */
-    register int    curbyte = 0;
-    /* search pointer */
-    register UCHAR *sp;                 
-    register long   context;
-    /* length of context */
-    /* saved left context */
-    UCHAR           left_context[GBSED_CONTEXT_SIZE+1]; 
+    size_t slen = 0;   /* length of search  string */
+    size_t rlen = 0;   /* length of replace string */
     
-    int slen = 0;   /* length of search  string */
-    int rlen = 0;   /* length of replace string */
-
-    assert( arg != NULL );
+    gbsedGC COLLECT;
 
     gbsed_reset_warnings();
+    _gbsed_gc_init();
 
     if (!minmatch)
         minmatch = 1;
     if (!maxmatch)
-        maxmatch = GBSED_MAXMATCH_NO_LIMIT;
+        maxmatch = GBSED_MMAX_NO_LIMIT;
 
-    if (maxmatch > GBSED_MAXMATCH_NO_LIMIT && maxmatch < minmatch) {
+    if (maxmatch > GBSED_MMAX_NO_LIMIT && maxmatch < minmatch) {
         gbsed_errno = GBSED_EMINMAX_BALANCE;
         goto ERROR;
     }
 
-    /* Prepare search string */
-    searchtmp = _gbsed_remove_0x_from_str(searchstr);
-    if (searchtmp == NULL) goto OUTOFMEM;
-    searchtmp_malloced++;
-
-    search_buf   = _gbsed_hexstr2bin((UCHAR *)searchtmp, &slen);
-    if (slen == GBSED_ERROR)
+    search   = _gbsed_hexstr2bin(searchstr, &slen);
+    if (search == NULL)
         goto ERROR;
     if (slen <= 0) {
         gbsed_errno = GBSED_ENULL_SEARCH;
         goto ERROR;
     }
-    search_buf_malloced++;
-    search = &search_buf[0];
+    COLLECT.search++;
 
     /* Prepare replace string */
     if (replacestr != NULL) {
-        replacetmp =_gbsed_remove_0x_from_str(replacestr);
-        if (replacetmp == NULL) goto OUTOFMEM;
-        replacetmp_malloced++;
-
-        replace_buf = _gbsed_hexstr2bin((UCHAR *)replacetmp, &rlen);
-        if (rlen == GBSED_ERROR)
+        replace = _gbsed_hexstr2bin(replacestr, &rlen);
+        if (replace == NULL)
             goto ERROR;
-        replace_buf_malloced++;
-        replace = &replace_buf[0];
        
         if (rlen <= 0) { 
             gbsed_errno = GBSED_ENULL_REPLACE;
@@ -391,6 +335,7 @@ gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
         if ((slen != rlen)) {
             gbsed_push_warning(GBSED_WBALANCE);
         }
+        COLLECT.replace++;
     }
 
     /* Must have input file */
@@ -399,99 +344,61 @@ gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
         goto ERROR;
     }
 
-    stack   = _gbsed_alloc(stack, rlen+GBSED_CONTEXT_SIZE+1, int);
-    if (stack == NULL) goto OUTOFMEM;
-    stack_malloced++;
-    
-    context = 0;
-    sp      = (unsigned char *)search;
-    while (curbyte != EOF) {
-        curbyte = _gbsed_getc();
-        context++;
+    if (outfile != NULL) {
+        to_be_written = _gbsed_alloc(to_be_written, rlen+1, UCHAR);
+        COLLECT.to_be_written++;
+    }
 
-        if ((curbyte == *sp) && ((maxmatch < 0) || (match < maxmatch ))) {
-            register long       saved_context;
-            register UCHAR     *end;
-            int                *savebuffer;
-            int                 savelen; 
+    while (true) {
+        int byte;
 
-            savebuffer = _gbsed_alloc(savebuffer, rlen, int);
-            if (savebuffer == NULL) goto OUTOFMEM;
-
-            saved_context           = context;
-            savelen                 = 0;
-            savebuffer[savelen++]   = curbyte;
-            end                     = sp + slen;
-
-            while (1) {
-                if (++sp == end) {
-                    register int i;
-                    
-                    match++;
-                    if (match < minmatch) {
-                        for (i = 0; i < savelen; i++)
-                            _gbsed_putc(savebuffer[i]);
-                    }
-                    else {
-                        if (replace == NULL) {
-                            for (i = 0; i < savelen; i++)
-                                _gbsed_putc(savebuffer[i]);
-                        }
-                        else {
-                            for (i = 0; i < rlen; i++) {
-                                if (*(replacestr + i*2) == '?')  {
-                                    _gbsed_putc(savebuffer[i])
-                                }
-                                else {
-                                    _gbsed_putc(*(replace+i));
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
-                else {
-                    context++;
-                    curbyte = _gbsed_getc();
-                    savebuffer[savelen++] = curbyte;
-                    if ((curbyte != *sp) && (*sp != '?') && (*(searchstr + savelen*2) != '?'))
-                    {
-                        register int i;
-                        
-                        /* got no match. */
-                        for (i = savelen - 1; i >= 1; i--) {
-                            stack[top_of_stack++] = savebuffer[i];
-                        }
-                        curbyte = savebuffer[0];
-                        _gbsed_putc(curbyte);
-                        context = saved_context;
-                        break;
-                    }
+        if (bytematch && bytematch == slen) {
+            /* when all of search string has been matched */
+            if (outfile != NULL && matches < minmatch) { 
+                for (i = 0; i < rlen; i++) {
+                    search[i] == '?' ? putc(to_be_written[i], outfile)
+                                     : putc(replace[i], outfile);
                 }
             }
-            sp = search;
-            _gbsed_safefree(savebuffer);
+            matches++;
+            bytematch = 0;
         }
-        else if (curbyte != EOF) {
-            _gbsed_putc(curbyte);
+
+        byte = getc(infile);
+        if (feof(infile))
+            break;
+        
+        if (outfile != NULL)
+            to_be_written[bytematch] = byte;
+
+        if (byte == search[bytematch] || search[bytematch] == '?') {
+            if (maxmatch == GBSED_MMAX_NO_LIMIT || matches < maxmatch) {
+                /* while it matches */
+                bytematch++;
+                continue;
+            }
         }
+
+        /* write buffer */
+        if (outfile != NULL) {
+            for (i = 0; i <= bytematch; i++)
+                putc(to_be_written[i], outfile);
+        }
+
+        bytematch     = 0;
     }
+     
 
     fflush(outfile);
 
-    match -= (minmatch - 1);
+    /*matches -= (minmatch - 1);*/
   
-    _gbsed_free(); 
+    _gbsed_gc_collect();
             
-    return match;
+    return matches;
 
     ERROR:
-        _gbsed_free();
-        return GBSED_ERROR;
-
-    OUTOFMEM:
-        _gbsed_free();
-        gbsed_errno = GBSED_ENOMEM;
+        _gbsed_gc_collect();
         return GBSED_ERROR;
 }
 
@@ -505,7 +412,7 @@ gbsed_string2hexstring (char *orig)
     int     i;
 
     size_of_hex = (strlen(orig) * GBSED_BYTE_SIZE);
-    hexstr      = (char *)calloc(size_of_hex + 1, sizeof(char));
+    hexstr      = _gbsed_alloc(hexstr, size_of_hex + 1, char);
     strp        = orig;
 
     for (i = 0; *strp != '\0'; strp++, i += GBSED_BYTE_SIZE) {
@@ -519,111 +426,58 @@ gbsed_string2hexstring (char *orig)
     return hexstr;
 }
 
-char *
-_gbsed_remove_0x_from_str (char *s)
-{
-    return _gbsed_delete_start_of_str(s, "0x");
-}
-
-char *
-_gbsed_delete_start_of_str (char *s, const char *what)
-{
-    int    i        = 0;
-    int    matches  = 1;
-    size_t wlen     = strlen(what);
-    char  *dest     = strdup(s);
-    if (dest == NULL) return NULL;
-
-    for (i = 0; i < wlen; i++) { 
-        if (s[i] != what[i])
-            matches--;
-    }
-    if (matches == 1) {
-        size_t  src_len = (strlen(s)+1);
-        char   *src_ptr = s;
-
-        dest[0]            = '\0';
-        strncat(dest, src_ptr + wlen, src_len + 1);
-        dest[src_len-wlen] = '\0';
-    }
-    return dest;
-}
-
-#define _gbsed_isnum(c)    (((c) >= '0') && ((c) <= '9'))
-#define _gbsed_ishex(c)    (_gbsed_isnum(c) || (((c) >= 'a') && ((c) <= 'f')) || \
-                    (((c) >= 'A') && ((c) <= 'F')))
-#define _gbsed_hexval(c)   (_gbsed_isnum(c) ? ((c) & 0xf) : (((c) & 0xf) + 9))
-#define _gbsed_iswild(c)   ((c) == '?')
+#define hexvalue(c)     (isdigit(c) ? ((c) & 0xf) : (((c) & 0xf) + 9))
+#define iswild(c)       ((c) == '?')
+#define is0xsequence(c)    (*c == '0' && ( *(c+1) == 'x' || *(c+1) == 'X'))
 UCHAR *
-_gbsed_hexstr2bin (register UCHAR *in, int *len_buf)
+_gbsed_hexstr2bin (char *in, size_t *len_buf)
 {
-    register UCHAR *outp;
-    register UCHAR  inp;
-    register UCHAR  t;
-    register UCHAR *end;
-    register UCHAR *out;
+    int    i   = 0;
+    char  *p   = NULL;
+    UCHAR *out = NULL;
+    size_t len;
 
-    /* False until proven right. */
-    *len_buf = GBSED_ERROR;
+    len   = (size_t)ceil(((double)strlen(in)/2));
+    out   = _gbsed_alloc(out, len, sizeof(UCHAR));
 
-    out = _gbsed_alloc(out, strlen((char *)in)+1, UCHAR);
-    if (out == NULL) {
-        gbsed_errno = GBSED_ENOMEM;
-        return NULL;
+    p = in;
+
+    /* skip the first two chars if they are '0x' */ 
+    if (is0xsequence(p)) {
+        *(p   += 2);
+         len--;
     }
-    outp = out;
-    end  = outp + strlen((char *)in);
-    inp  = *in++;
 
-    while (inp != '\0') {
+    while (*p != '\0') {
+        UCHAR byte;
 
-        if (_gbsed_ishex(inp)) {
-            t = _gbsed_hexval(inp);
-            inp = *in++;
-                
-            while (_gbsed_ishex(inp)) {
-                t = (t << 4) + _gbsed_hexval(inp);
-                inp = *in++;
-                if (_gbsed_ishex(inp)) {
-                    *outp++ = t;
-        
-                    if (outp >= end) {
-                        gbsed_errno = GBSED_EREPLACE_TOO_LONG;
-                        return NULL;
-                    }
-
-                    t = _gbsed_hexval(inp);
-                    inp = *in++;
-                }
+        if (isxdigit(*p)) {
+             byte = hexvalue(*p);
+            *p++;
+            if (isxdigit(*p)) {
+                byte = (byte << 4) + hexvalue(*p);
+                *p++;
             }
-           *outp++ = t;
+            out[i++] = byte;
         }
-        else if (_gbsed_iswild(inp)) {
-            *outp++ = inp;
-            inp    = *in++;
-            if (!_gbsed_iswild(inp)) {
+        else if (iswild(*p)) {
+            out[i++] = *p++;
+            if (! iswild(*p)) {
                 gbsed_errno = GBSED_ENIBBLE_NOT_BYTE;
                 return NULL;
             }
-            inp = *in++;
+            *p++;
         }
         else {
             gbsed_errno = GBSED_EINVALID_CHAR;
             return NULL;
         }
 
-        if (outp >= end) {
-            gbsed_errno = GBSED_EREPLACE_TOO_LONG;
-            return NULL;
-        }
-    
     }
-    *outp = '\0';
 
-    *len_buf = (outp - out); 
+    *len_buf = len;
 
     return out;
-
 }
 
 mode_t
@@ -818,7 +672,7 @@ Stop after C<maxmatch> matches. A value of C<-1> means no limit.
         bargs->infilename  = "/bin/ls";
         bargs->outfilename = "bsed.out";
         bargs->minmatch    =  1;                        // atleast one match.
-        bargs->maxmatch    = GBSED_MAXMATCH_NO_LIMIT;   // no limit.
+        bargs->maxmatch    = GBSED_MMAX_NO_LIMIT;   // no limit.
 
         if (argc > 1)
             bargs->infilename  = argv[1];

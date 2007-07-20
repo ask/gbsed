@@ -275,6 +275,9 @@ void
 print_version(void)
 {
     fprintf(stdout, "\n%s %s\n\n", PACKAGE, gbsed_version());
+    fprintf(stdout, "Compiled [%s] %s %s.\n\n",
+        __FILE__, __DATE__, __TIME__
+    );
     fprintf(stdout, "%s", license_info);
     exit   (EXIT_SUCCESS);
 }
