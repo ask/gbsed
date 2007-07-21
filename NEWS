@@ -5,6 +5,9 @@ See the end for copying conditions.
 
 Please send libgbsed bug reports to file-bsed-rt@cpan.org
 
+Version 0.66
+* All new algorithm.
+
 Version 0.6
 * Output file now preserve the executable flag from the input file.
 

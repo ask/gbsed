@@ -1,5 +1,9 @@
 ChangeLog for libgbsed.
 
+2007-07-21 Ask Solem <ask@0x61736b.net>
+    * libgbsed.c:
+      Completely new algorithm, much cleaner code.
+
 2007-07-17 Ask Solem <ask@0x61736b.net>
     * libgbsed.c: 
       now the output file preserves the executable bits from 
