@@ -354,14 +354,14 @@ gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
 
         if (bytematch && bytematch == slen) {
             /* when all of search string has been matched */
-            if (outfile != NULL && matches < minmatch) { 
+            if (outfile != NULL && matches > minmatch) { 
                 for (i = 0; i < rlen; i++) {
                     search[i] == '?' ? putc(to_be_written[i], outfile)
                                      : putc(replace[i], outfile);
                 }
             }
-            matches++;
             bytematch = 0;
+            matches++;
         }
 
         byte = getc(infile);
@@ -391,7 +391,7 @@ gbsed_fbinary_search_replace (struct fgbsed_arguments *arg)
 
     fflush(outfile);
 
-    /*matches -= (minmatch - 1);*/
+    matches -= (minmatch - 1);
   
     _gbsed_gc_collect();
             
