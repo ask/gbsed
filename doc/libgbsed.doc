@@ -69,7 +69,7 @@ while these are not:
 
 =head1 FUNCTIONS
 
-=head2 C<gbsed_binary_search_replace(struct bsed_arguments *)>
+=head2 C<gbsed_binary_search_replace(struct gbsed_arguments *)>
 
 =head3 ARGUMENTS
 
@@ -78,13 +78,13 @@ The members of the argument struct is as follows:
 
 =over 4
 
-=item C<unsigned char *searchin>
+=item C<char *search>
 
 What to search for. This must be a string with hex values or the wildcard
 character sequence C<??>, which will match any byte. The string
 can start with C<0x>, but this is optional.
 
-=item C<unsigned char *replacein>
+=item C<char *replace>
 
 What to replace with. Must also be a string with hex values,
 but no wildcards allowed. It must also be of the same length
@@ -94,11 +94,11 @@ it will be rendered useless as address offsets will be shifted and
 relocation tables and internal address references will point to the
 wrong place).
 
-=item C<unsigned char *ifilenm>
+=item C<char *infilename>
 
 The file name of the file to search in.
 
-=item C<unsigned char *ofilenm>
+=item C<char *outfilename>
 
 The file name to save the modified binary as.
 
@@ -140,7 +140,7 @@ Stop after C<maxmatch> matches. A value of C<-1> means no limit.
         bargs->infilename  = "/bin/ls";
         bargs->outfilename = "bsed.out";
         bargs->minmatch    =  1;                        // atleast one match.
-        bargs->maxmatch    = GBSED_MAXMATCH_NO_LIMIT;   // no limit.
+        bargs->maxmatch    = GBSED_MMAX_NO_LIMIT;   // no limit.
 
         if (argc > 1)
             bargs->infilename  = argv[1];

@@ -17,11 +17,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([gbsed], [0.6], [Ask Solem ask@0x61736b.net], [gbsed])
+AC_INIT([gbsed], [0.66], [Ask Solem ask@0x61736b.net], [gbsed])
 AC_REVISION($Revision$)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE([gbsed],[0.6])
+AM_INIT_AUTOMAKE([gbsed],[0.66])
 AC_CONFIG_SRCDIR(src/libgbsed/libgbsed.c)
 AC_CONFIG_MACRO_DIR(m4)
 AC_CANONICAL_HOST
@@ -109,7 +109,7 @@ fi
 AC_MSG_RESULT($osx_deployment_target)
 
 if test "$this_is_mac_os_x" == "yes"; then
-    if test "as_universal_binaries" == "1"; then
+    if test "$can_universal_binaries" == "yes"; then
         CFLAGS="$CFLAGS -arch ppc -arch i386"
     fi
         dnl LDEXT="dylib"

@@ -124,7 +124,7 @@
 .\" ========================================================================
 .\"
 .IX Title ".::src::libgbsed::libgbsed.c 3"
-.TH .::src::libgbsed::libgbsed.c 3 "2007-07-16" "perl v5.9.5" "User Contributed Perl Documentation"
+.TH .::src::libgbsed::libgbsed.c 3 "2007-07-21" "perl v5.9.5" "User Contributed Perl Documentation"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -200,23 +200,23 @@ while these are not:
 .Ve
 .SH "FUNCTIONS"
 .IX Header "FUNCTIONS"
-.ie n .Sh """gbsed_binary_search_replace(struct bsed_arguments *)"""
-.el .Sh "\f(CWgbsed_binary_search_replace(struct bsed_arguments *)\fP"
-.IX Subsection "gbsed_binary_search_replace(struct bsed_arguments *)"
+.ie n .Sh """gbsed_binary_search_replace(struct gbsed_arguments *)"""
+.el .Sh "\f(CWgbsed_binary_search_replace(struct gbsed_arguments *)\fP"
+.IX Subsection "gbsed_binary_search_replace(struct gbsed_arguments *)"
 \fI\s-1ARGUMENTS\s0\fR
 .IX Subsection "ARGUMENTS"
 .PP
 \&\f(CW\*(C`gbsed_binary_search_replace\*(C'\fR uses a struct for it's arguments.
 The members of the argument struct is as follows:
-.ie n .IP """unsigned char *searchin""" 4
-.el .IP "\f(CWunsigned char *searchin\fR" 4
-.IX Item "unsigned char *searchin"
+.ie n .IP """char *search""" 4
+.el .IP "\f(CWchar *search\fR" 4
+.IX Item "char *search"
 What to search for. This must be a string with hex values or the wildcard
 character sequence \f(CW\*(C`??\*(C'\fR, which will match any byte. The string
 can start with \f(CW\*(C`0x\*(C'\fR, but this is optional.
-.ie n .IP """unsigned char *replacein""" 4
-.el .IP "\f(CWunsigned char *replacein\fR" 4
-.IX Item "unsigned char *replacein"
+.ie n .IP """char *replace""" 4
+.el .IP "\f(CWchar *replace\fR" 4
+.IX Item "char *replace"
 What to replace with. Must also be a string with hex values,
 but no wildcards allowed. It must also be of the same length
 as the search string (This is by intention, as binary data is always
@@ -224,13 +224,13 @@ in structured form. If you add extra information to a binary executable
 it will be rendered useless as address offsets will be shifted and
 relocation tables and internal address references will point to the
 wrong place).
-.ie n .IP """unsigned char *ifilenm""" 4
-.el .IP "\f(CWunsigned char *ifilenm\fR" 4
-.IX Item "unsigned char *ifilenm"
+.ie n .IP """char *infilename""" 4
+.el .IP "\f(CWchar *infilename\fR" 4
+.IX Item "char *infilename"
 The file name of the file to search in.
-.ie n .IP """unsigned char *ofilenm""" 4
-.el .IP "\f(CWunsigned char *ofilenm\fR" 4
-.IX Item "unsigned char *ofilenm"
+.ie n .IP """char *outfilename""" 4
+.el .IP "\f(CWchar *outfilename\fR" 4
+.IX Item "char *outfilename"
 The file name to save the modified binary as.
 .ie n .IP """int minmatch""" 4
 .el .IP "\f(CWint minmatch\fR" 4
@@ -270,7 +270,7 @@ Stop after \f(CW\*(C`maxmatch\*(C'\fR matches. A value of \f(CW\*(C`\-1\*(C'\fR 
 \&        bargs\->infilename  = "/bin/ls";
 \&        bargs\->outfilename = "bsed.out";
 \&        bargs\->minmatch    =  1;                        // atleast one match.
-\&        bargs\->maxmatch    = GBSED_MAXMATCH_NO_LIMIT;   // no limit.
+\&        bargs\->maxmatch    = GBSED_MMAX_NO_LIMIT;   // no limit.
 \&
 \&        if (argc > 1)
 \&            bargs\->infilename  = argv[1];
