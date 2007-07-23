@@ -33,7 +33,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -43,6 +42,15 @@
 #include <sys/stat.h>
 #include <math.h>
 #include <ctype.h>
+
+#ifdef HAVE_STDBOOL_H
+#   include <stdbool.h>
+#else /* ! HAVE_STDBOOL_H */
+#   ifndef !defined(__cplusplus) || !defined(__bool_true_false_are_defined)
+#       define false 0
+#       define true  1
+#   endif /* __cplusplus */
+#endif /* HAVE_STDBOOL_H */
 
 #ifdef HAVE_MALLOC_H
 #   include <malloc.h>

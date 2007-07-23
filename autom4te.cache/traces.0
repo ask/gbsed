@@ -669,11 +669,13 @@ m4trace:configure.ac:45: -1- AC_HEADER_STDC
 m4trace:configure.ac:45: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
 m4trace:configure.ac:45: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS])
-m4trace:configure.ac:46: -1- AC_CHECK_HEADERS([libgen.h stdlib.h unistd.h sys/stat.h sys/types.h])
+m4trace:configure.ac:46: -1- AC_CHECK_HEADERS([libgen.h stdlib.h stdbool.h unistd.h sys/stat.h sys/types.h])
 m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_LIBGEN_H], [/* Define to 1 if you have the <libgen.h> header file. */
 #undef HAVE_LIBGEN_H])
 m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STDLIB_H], [/* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H])
+m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_STDBOOL_H], [/* Define to 1 if you have the <stdbool.h> header file. */
+#undef HAVE_STDBOOL_H])
 m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_UNISTD_H], [/* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H])
 m4trace:configure.ac:46: -1- AH_OUTPUT([HAVE_SYS_STAT_H], [/* Define to 1 if you have the <sys/stat.h> header file. */

@@ -43,7 +43,7 @@ AC_PROG_INSTALL
 AC_CACHE_SAVE
 
 AC_HEADER_STDC
-AC_CHECK_HEADERS(libgen.h stdlib.h unistd.h sys/stat.h sys/types.h)
+AC_CHECK_HEADERS(libgen.h stdlib.h stdbool.h unistd.h sys/stat.h sys/types.h)
 
 # OS Specific
 
